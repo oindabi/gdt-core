@@ -534,9 +534,8 @@ class RoboLowess:
                 r = spline(centroids)
                 model_rates[:, idx] = r
 
-                # derivative-based uncertainty (without extra scale factor)
-                b2 = spline(centroids, 2)
-                model_uncert[:, idx] = np.maximum(np.abs(b2) * (dt ** 2), sigma_floor)
+                # Poisson uncertainty: sqrt(model_rate / dt). 
+                model_uncert[:, idx] = np.sqrt(np.maximum(r, 0.0) / dt)
 
         return model_rates, model_uncert
     

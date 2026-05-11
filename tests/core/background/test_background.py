@@ -90,13 +90,11 @@ class TestRoboLowessBackground(TestCase):
     tstart = edges[:-1]
     tstop = edges[1:]
     exposure = np.full(tstart.size, 1.0)
-
     counts = np.linspace(10.0, 20.0, tstart.size).reshape(-1, 1)
 
     def test_fit(self):
         bkgd = RoboLowess(self.counts, self.tstart, self.tstop, self.exposure)
         bkgd.fit(temporal_resolution=1.0, lowess_iter=1)
-
         self.assertEqual(bkgd.statistic_name, 'chisq')
         self.assertEqual(bkgd.dof.shape, (1,))
         self.assertEqual(bkgd.statistic.shape, (1,))
@@ -105,14 +103,13 @@ class TestRoboLowessBackground(TestCase):
     def test_interpolate(self):
         bkgd = RoboLowess(self.counts, self.tstart, self.tstop, self.exposure)
         bkgd.fit(temporal_resolution=1.0, lowess_iter=1)
-
         rates, rate_uncert = bkgd.interpolate(self.tstart, self.tstop)
         self.assertEqual(rates.shape, self.counts.shape)
         self.assertEqual(rate_uncert.shape, self.counts.shape)
         self.assertTrue(np.allclose(rates, bkgd._backgrounds, rtol=1e-6, atol=1e-6))
-        self.assertTrue(np.all(np.isfinite(rate_uncert)))
-        self.assertTrue(np.all(rate_uncert >= 0.0))
-        self.assertTrue(np.any(rate_uncert > 0.0))
+        dt = float(np.median(self.tstop - self.tstart))
+        expected_uncert = np.sqrt(np.maximum(rates, 0.0) / dt)
+        self.assertTrue(np.allclose(rate_uncert, expected_uncert, rtol=1e-6, atol=1e-6))
 if __name__ == '__main__':
     unittest.main()
       
