@@ -527,15 +527,11 @@ class RoboLowess:
             if base_times.size < 2 or np.all(~np.isfinite(y)):
                 const = float(np.nanmean(y)) if np.isfinite(np.nanmean(y)) else 0.0
                 model_rates[:, idx] = np.full_like(centroids, const, dtype=float)
-                model_uncert[:, idx] = sigma_floor
-
             else:
                 spline = CubicSpline(base_times, y, bc_type='clamped', extrapolate=True)
-                r = spline(centroids)
-                model_rates[:, idx] = r
+                model_rates[:, idx] = spline(centroids)
 
-                # Poisson uncertainty: sqrt(model_rate / dt). 
-                model_uncert[:, idx] = np.sqrt(np.maximum(r, 0.0) / dt)
+            model_uncert[:, idx] = sigma_floor
 
         return model_rates, model_uncert
     

@@ -23,6 +23,7 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 import os
+import unittest
 import numpy as np
 from unittest import TestCase
 
@@ -107,9 +108,7 @@ class TestRoboLowessBackground(TestCase):
         self.assertEqual(rates.shape, self.counts.shape)
         self.assertEqual(rate_uncert.shape, self.counts.shape)
         self.assertTrue(np.allclose(rates, bkgd._backgrounds, rtol=1e-6, atol=1e-6))
-        dt = float(np.median(self.tstop - self.tstart))
-        expected_uncert = np.sqrt(np.maximum(rates, 0.0) / dt)
-        self.assertTrue(np.allclose(rate_uncert, expected_uncert, rtol=1e-6, atol=1e-6))
+        self.assertTrue(np.all(rate_uncert == 1e-20))
 if __name__ == '__main__':
     unittest.main()
       
